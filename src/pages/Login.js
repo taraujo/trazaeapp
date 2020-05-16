@@ -5,29 +5,38 @@ import { KeyboardAvoidingView, Platform,
     TouchableOpacity,
     StyleSheet, AsyncStorage } from 'react-native';
 
+import api from '../services/api';
+
 import logo from '../../assets/custom/login.png';
 
 export default function Login({ navigation }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [ email, setEmail] = useState('thasso.araujo@a.unileste.edu.br');
+    const [ password, setPassword] = useState('senha');
 
     useEffect(() => {
-        AsyncStorage.getItem('user').then(user => {
-            if (user) {
-                navigation.navigate('Home');
-            }
-        })
+        // AsyncStorage.getItem('user').then(user => {
+        //     if (user) {
+        //         navigation.navigate('Home');
+        //     }
+        // })
     }, []);
 
     async function handleSubmit() {
         // Logar na Api
-
-        await AsyncStorage.setItem('user', {
-            id: 1,
-            email: email
+        const usuario = api.post('/auth', {
+            email,
+            password
         });
 
-        navigation.navigate('Home');
+        const { _id, nome } = usuario;
+
+        await AsyncStorage.setItem('user', {
+            _id,
+            nome
+        });
+
+        console.log("Olá " + nome);
+        // navigation.navigate('Home');
     }
 
     return (
@@ -56,6 +65,10 @@ export default function Login({ navigation }) {
                     value={password}
                     onChangeText={setPassword}
                 />
+
+                <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
+                    <Text style={styles.submitText}>Entrar</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
                     <Text style={styles.submitText}>Entrar</Text>
