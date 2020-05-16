@@ -23,20 +23,20 @@ export default function Login({ navigation }) {
 
     async function handleSubmit() {
         // Logar na Api
-        const usuario = api.post('/auth', {
-            email,
-            password
-        });
+        // const usuario = api.post('/auth', {
+        //     email,
+        //     password
+        // });
 
-        const { _id, nome } = usuario;
+        // const { _id, nome } = usuario;
 
-        await AsyncStorage.setItem('user', {
-            _id,
-            nome
-        });
+        // await AsyncStorage.setItem('user', {
+        //     _id,
+        //     nome
+        // });
 
-        console.log("Olá " + nome);
-        // navigation.navigate('Home');
+        // console.log("Olá " + nome);
+        navigation.navigate('Cadastro');
     }
 
     return (

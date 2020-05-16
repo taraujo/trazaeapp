@@ -14,20 +14,20 @@ export default function Cadastro({ navigation }) {
     const [password2, setPassword2] = useState('');
 
       useEffect(() => {
-        AsyncStorage.getItem('user').then(user => {
-            if (user) {
-                navigation.navigate('Home');
-            }
-        })
+        // AsyncStorage.getItem('user').then(user => {
+        //     if (user) {
+        //         navigation.navigate('Home');
+        //     }
+        // })
     }, []);
 
     async function handleSubmit() {
         // Logar na Api
 
-        await AsyncStorage.setItem('user', {
-            id: 1,
-            email: email
-        });
+        // await AsyncStorage.setItem('user', {
+        //     id: 1,
+        //     email: email
+        // });
 
         navigation.navigate('Home');
     }
@@ -116,8 +116,7 @@ const styles = StyleSheet.create({
     label: {
         fontWeight: 'bold',
         color: '#ebedee',
-        marginBottom: 8,
-        fontStyle: 'italic'
+        marginBottom: 8
     },
 
     input: {
