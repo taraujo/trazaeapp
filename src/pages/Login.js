@@ -23,19 +23,18 @@ export default function Login({ navigation }) {
 
     async function handleSubmit() {
         // Logar na Api
-        const usuario = api.post('/auth', {
+        const response = await api.post('/auth', {
             email,
             password
         });
 
-        const { _id, nome } = usuario;
+        const { _id, nome } = response.data;
 
         await AsyncStorage.setItem('user', {
             _id,
             nome
         });
 
-        console.log("Olá " + nome);
         // navigation.navigate('Home');
     }
 
