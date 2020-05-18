@@ -10,15 +10,15 @@ import api from '../services/api';
 import logo from '../../assets/custom/login.png';
 
 export default function Login({ navigation }) {
-    const [ email, setEmail] = useState('thasso.araujo@a.unileste.edu.br');
-    const [ password, setPassword] = useState('senha');
+    const [ email, setEmail] = useState('');
+    const [ password, setPassword] = useState('');
 
     useEffect(() => {
-        // AsyncStorage.getItem('user').then(user => {
-        //     if (user) {
-        //         navigation.navigate('Home');
-        //     }
-        // })
+        AsyncStorage.getItem('user').then(user => {
+            if (user) {
+                navigation.navigate('Home');
+            }
+        })
     }, []);
 
     async function handleSubmit() {
@@ -28,14 +28,14 @@ export default function Login({ navigation }) {
             password
         });
 
-        const { _id, nome } = response.data;
+        const { _id, name } = response.data;
 
         await AsyncStorage.setItem('user', {
             _id,
-            nome
+            name
         });
 
-        // navigation.navigate('Home');
+        navigation.navigate('Home');
     }
 
     return (
@@ -69,8 +69,8 @@ export default function Login({ navigation }) {
                     <Text style={styles.submitText}>Entrar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
-                    <Text style={styles.submitText}>Entrar</Text>
+                <TouchableOpacity style={styles.singUpButton} onPress={() => navigation.navigate('Cadastro')}>
+                    <Text style={styles.singUpText}>Cadastrar-se</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -80,8 +80,8 @@ export default function Login({ navigation }) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 200,
-        height: 100
+        width: 260,
+        height: 120
     },
 
     container: {
@@ -100,33 +100,49 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#ebedee',
         marginBottom: 8,
-        fontStyle: 'italic'
+        fontStyle: 'italic',
+        fontSize: 18
     },
 
     input: {
         borderWidth: 1,
         borderColor: '#31303a',
-        paddingHorizontal: 20,
-        fontSize: 16,
+        paddingHorizontal: 10,
+        fontSize: 18,
         color: '#444',
         backgroundColor: '#ebedee',
-        height: 30,
+        height: 35,
         marginBottom: 20,
         borderRadius: 3,
         fontStyle: 'italic'
     },
 
     submit: {
-        height: 42,
+        height: 40,
         backgroundColor: '#31303a',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 10,
     },
 
     submitText: {
         color: '#ebedee',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 18,
         fontStyle: 'italic'
-    }
+    },
+
+    singUpButton: {
+        height: 40,
+        backgroundColor: '#777',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    singUpText: {
+        color: '#ebedee',
+        fontWeight: 'bold',
+        fontSize: 18,
+        fontStyle: 'italic'
+    },
 });

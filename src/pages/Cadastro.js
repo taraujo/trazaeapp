@@ -3,33 +3,40 @@ import { KeyboardAvoidingView, Platform,
     View, Image, 
     Text, TextInput, 
     TouchableOpacity,
-    StyleSheet, AsyncStorage } from 'react-native';
+    StyleSheet, Alert } from 'react-native';
+
+import api from '../services/api';
 
 import logo from '../../assets/custom/login.png';
 
 export default function Cadastro({ navigation }) {
-    const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [password2, setPassword2] = useState('');
-
-      useEffect(() => {
-        AsyncStorage.getItem('user').then(user => {
-            if (user) {
-                navigation.navigate('Home');
-            }
-        })
-    }, []);
+    const [samePassword, setSamePassword] = useState('');
 
     async function handleSubmit() {
-        // Logar na Api
+        if (password != samePassword) {
+            console.log("As senhas não coincidem!");
+            Alert.alert("As senhas não coincidem!");
+            return;
+        }
 
-        await AsyncStorage.setItem('user', {
-            id: 1,
-            email: email
-        });
-
-        navigation.navigate('Home');
+        await api.post('/usuarios', {
+            email,
+            name,
+            password,
+            samePassword
+        }).then(function (response) {
+            console.log("Cadastro Efetuado com sucesso!");
+            
+            navigation.navigate('Login');
+          })
+          .catch(function (error) {
+            console.log(error);
+            console.log("Não foi possível concluir o cadastro!");
+            Alert.alert("Não foi possível concluir o cadastro!");
+          })
     }
 
     return (
@@ -37,7 +44,7 @@ export default function Cadastro({ navigation }) {
             <Image style={styles.logo} source={logo}/>
 
             <View>
-              <Text style={styles.text}>Cadastro de Usuário</Text>
+              <Text style={styles.text}>Olá, preencha os dados...</Text>
             </View>
 
             <View style={styles.form}>
@@ -80,8 +87,8 @@ export default function Cadastro({ navigation }) {
                     keyboardType="password"
                     secureTextEntry={true}
                     autoCorrect={false}
-                    value={password2}
-                    onChangeText={setPassword2}                
+                    value={samePassword}
+                    onChangeText={setSamePassword}                
                 />
 
 
@@ -97,8 +104,8 @@ export default function Cadastro({ navigation }) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 200,
-        height: 100
+        width: 260,
+        height: 120
     },
 
     container: {
@@ -106,6 +113,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: "center",
         backgroundColor: '#ff5353'
+    },
+
+    text: {
+        fontWeight: 'bold',
+        color: '#ebedee',
+        marginBottom: 8,
+        fontSize: 20,
+        fontStyle: 'italic',
+        justifyContent: 'flex-start'
     },
 
     form: {
@@ -117,41 +133,49 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#ebedee',
         marginBottom: 8,
-        fontStyle: 'italic'
+        fontStyle: 'italic',
+        fontSize: 18
     },
 
     input: {
         borderWidth: 1,
         borderColor: '#31303a',
-        paddingHorizontal: 20,
-        fontSize: 16,
+        paddingHorizontal: 10,
+        fontSize: 18,
         color: '#444',
         backgroundColor: '#ebedee',
-        height: 30,
+        height: 35,
         marginBottom: 20,
         borderRadius: 3,
         fontStyle: 'italic'
     },
 
     submit: {
-        height: 42,
+        height: 40,
         backgroundColor: '#31303a',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 10,
     },
 
     submitText: {
         color: '#ebedee',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 18,
         fontStyle: 'italic'
     },
-    text: {
-      fontWeight: 'bold',
-      color: '#ebedee',
-      marginBottom: 8,
-      fontSize: 20,
-      fontStyle: 'italic',
-      justifyContent: 'center'
-    }
+
+    singUpButton: {
+        height: 40,
+        backgroundColor: '#777',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    singUpText: {
+        color: '#ebedee',
+        fontWeight: 'bold',
+        fontSize: 18,
+        fontStyle: 'italic'
+    },
 });
