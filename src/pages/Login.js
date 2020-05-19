@@ -10,19 +10,10 @@ import api from '../services/api';
 import logo from '../../assets/custom/login.png';
 
 export default function Login({ navigation }) {
-    const [ email, setEmail] = useState('');
-    const [ password, setPassword] = useState('');
-
-    useEffect(() => {
-        AsyncStorage.getItem('user').then(user => {
-            if (user) {
-                navigation.navigate('Home');
-            }
-        })
-    }, []);
+    const [ email, setEmail ] = useState('');
+    const [ password, setPassword ] = useState('');
 
     async function handleSubmit() {
-        // Logar na Api
         const response = await api.post('/auth', {
             email,
             password
@@ -35,7 +26,9 @@ export default function Login({ navigation }) {
             name
         });
 
-        navigation.navigate('Home');
+        navigation.navigate('Home', {
+            name
+        });
     }
 
     return (
