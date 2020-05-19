@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-    KeyboardAvoidingView, Platform,
-    View, Image,
-    Text,
+import { KeyboardAvoidingView, Platform, 
+    View, Image, 
+    Text, TextInput, 
     TouchableOpacity,
-    StyleSheet, AsyncStorage
-} from 'react-native';
+    StyleSheet, AsyncStorage } from 'react-native';
 
 import api from '../services/api';
 
@@ -14,35 +12,27 @@ import { Button, TextInput } from 'react-native-paper'
 import logo from '../../assets/custom/header.png';
 
 export default function Login({ navigation }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-    useEffect(() => {
-        AsyncStorage.getItem('user').then(user => {
-            if (user) {
-                navigation.navigate('Home');
-            }
-        })
-    }, []);
+    const [ email, setEmail] = useState('');
+    const [ password, setPassword] = useState('');
 
     async function handleSubmit() {
-        // Logar na Api
         const response = await api.post('/auth', {
             email,
             password
         });
-        if(response) {
-            const { _id, name } = response.data;
 
-            AsyncStorage.setItem('user', {
-                _id,
-                name
-            });
-    
-            navigation.navigate('Home');
-        }
+        const { _id, name } = response.data;
 
+        await AsyncStorage.setItem('user', {
+            _id,
+            name
+        });
+
+        navigation.navigate('Home', {
+            name
+        });
     }
+
 
     return (
         <KeyboardAvoidingView enabled={Platform.OS == 'ios'} behavior="padding" style={styles.container}>
