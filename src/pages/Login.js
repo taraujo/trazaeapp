@@ -1,18 +1,19 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import {
     KeyboardAvoidingView, Platform,
     View, Image,
     Text, TextInput,
-    TouchableOpacity, Animated,
-    StyleSheet, AsyncStorage,
+    TouchableOpacity,
+    StyleSheet,
     Alert
 } from 'react-native';
 
-import {signIn} from '../services/auth.service';
+import { signIn } from '../services/auth.service';
 
-import {Button, Card} from 'react-native-paper'
+import { Button, Card } from 'react-native-paper';
 
-import {FontAwesome} from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+
 import logo from '../../assets/custom/white-logo.png';
 
 export default function Login({navigation}) {
@@ -27,11 +28,6 @@ export default function Login({navigation}) {
 
         if (res) {
             const {_id, name} = res;
-
-            // await AsyncStorage.setItem('user', {
-            //     _id,
-            //     name
-            // });
 
             navigation.navigate('Home', {
                 name

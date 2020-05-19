@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
 import { KeyboardAvoidingView, Platform, 
-    View, Image, 
-    Text, TextInput, 
-    TouchableOpacity,
+    View, Image, TextInput,
     StyleSheet, Alert } from 'react-native';
+
+import { Button, Card } from 'react-native-paper';
+
+import { FontAwesome } from '@expo/vector-icons';
 
 import api from '../services/api';
 
-import logo from '../../assets/custom/login.png';
+import logo from '../../assets/custom/white-logo.png';
 
 export default function Cadastro({ navigation }) {
     const [name, setName] = useState('');
@@ -17,8 +20,26 @@ export default function Cadastro({ navigation }) {
 
     async function handleSubmit() {
         if (password != samePassword) {
-            console.log("As senhas não coincidem!");
+            alert("As senhas não coincidem!");
             Alert.alert("As senhas não coincidem!");
+            return;
+        }
+
+        if (name.length == 0) {
+            alert("Seu Nome é obrigatório!");
+            Alert.alert("Seu Nome é obrigatório!");
+            return;
+        }
+
+        if (email.length == 0) {
+            alert("Seu E-mail é obrigatório!");
+            Alert.alert("Seu E-mail é obrigatório!");
+            return;
+        }
+
+        if (password.length == 0) {
+            alert("Sua Senha é obrigatória!");
+            Alert.alert("Sua Senha é obrigatória!");
             return;
         }
 
@@ -28,13 +49,12 @@ export default function Cadastro({ navigation }) {
             password,
             samePassword
         }).then(function (response) {
-            console.log("Cadastro Efetuado com sucesso!");
-            
+            alert("Cadastro Efetuado com sucesso!");
             navigation.navigate('Login');
           })
           .catch(function (error) {
             console.log(error);
-            console.log("Não foi possível concluir o cadastro!");
+            alert("Não foi possível concluir o cadastro!");
             Alert.alert("Não foi possível concluir o cadastro!");
           })
     }
@@ -43,60 +63,62 @@ export default function Cadastro({ navigation }) {
         <KeyboardAvoidingView  enabled={Platform.OS == 'ios'} behavior="padding" style={styles.container}>
             <Image style={styles.logo} source={logo}/>
 
-            <View>
-              <Text style={styles.text}>Olá, preencha os dados...</Text>
-            </View>
+            <Card style={styles.cardView}>
+                <View style={styles.form}>
+                    <View style={styles.formView}>
+                        <FontAwesome style={styles.iconForm} name="user" size={24}/>
+                        <TextInput style={styles.input}
+                                   placeholder="Seu Nome"
+                                   placeholderTextColor="#999"
+                                   autoCapitalize="none"
+                                   autoCorrect={false}
+                                   value={name}
+                                   onChangeText={setName}
+                        />
+                    </View>
 
-            <View style={styles.form}>
-                
-                <Text style={styles.label}>Nome</Text>
-                <TextInput style={styles.input}
-                    placeholder="Digite seu nome"
-                    placeholderTextColor="#999"
-                    autoCorrect={false}
-                    value={name}
-                    onChangeText={setName}
-                />
+                    <View style={styles.formView}>
+                        <FontAwesome style={styles.iconForm} name="envelope" size={24}/>
+                        <TextInput style={styles.input}
+                                   placeholder="Seu E-mail"
+                                   placeholderTextColor="#999"
+                                   keyboardType='email-address'
+                                   autoCapitalize="none"
+                                   autoCorrect={false}
+                                   value={email}
+                                   onChangeText={setEmail}
+                        />
+                    </View>
 
-                <Text style={styles.label}>E-mail</Text>
-                <TextInput style={styles.input}
-                    placeholder="Preencha seu e-mail"
-                    placeholderTextColor="#999"
-                    keyboardType='email-address'
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={email}
-                    onChangeText={setEmail}
-                />
+                    <View style={styles.formView}>
+                        <FontAwesome style={styles.iconForm} name="lock" size={24}/>
+                        <TextInput style={styles.input}
+                                   placeholder="Digite sua Senha"
+                                   placeholderTextColor="#999"
+                                   secureTextEntry={true}
+                                   autoCorrect={false}
+                                   value={password}
+                                   onChangeText={setPassword}
+                        />
+                    </View>
 
-                <Text style ={styles.label}>Senha</Text>
-                <TextInput style={styles.input}
-                    placeholder="Digite sua Senha"
-                    placeholderTextColor="#999"
-                    keyboardType="password"
-                    secureTextEntry={true}
-                    autoCorrect={false}
-                    value={password}
-                    onChangeText={setPassword}                
-                />
-
-                <Text style ={styles.label}>Confirme sua Senha</Text>
-                <TextInput style={styles.input}
-                    placeholder="Repita sua Senha"
-                    placeholderTextColor="#999"
-                    keyboardType="password"
-                    secureTextEntry={true}
-                    autoCorrect={false}
-                    value={samePassword}
-                    onChangeText={setSamePassword}                
-                />
-
-
-                <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
-                    <Text style={styles.submitText}>Enviar</Text>
-                </TouchableOpacity>
-
-            </View>            
+                    <View style={styles.formView}>
+                        <FontAwesome style={styles.iconForm} name="lock" size={24}/>
+                        <TextInput style={styles.input}
+                                   placeholder="Confirme sua Senha"
+                                   placeholderTextColor="#999"
+                                   secureTextEntry={true}
+                                   autoCorrect={false}
+                                   value={samePassword}
+                                   onChangeText={setSamePassword}
+                        />
+                    </View>
+                </View>
+                <Button contentStyle={styles.submitButton} style={styles.submitButtonStyle} color="#fff"
+                        onPress={handleSubmit}>
+                    Confirmar
+                </Button>
+            </Card>
         </KeyboardAvoidingView>
     );
 }
@@ -104,78 +126,64 @@ export default function Cadastro({ navigation }) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 260,
-        height: 120
     },
 
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: "center",
-        backgroundColor: '#ff5353'
+        backgroundColor: '#D25C5A'
     },
 
-    text: {
-        fontWeight: 'bold',
-        color: '#ebedee',
-        marginBottom: 8,
-        fontSize: 20,
-        fontStyle: 'italic',
-        justifyContent: 'flex-start'
+    cardView: {
+        marginVertical: 20,
+        marginHorizontal: 18
     },
 
     form: {
-        alignSelf: 'stretch',
-        paddingHorizontal: 30
+        marginTop: 5,
+        paddingHorizontal: 20
     },
 
-    label: {
-        fontWeight: 'bold',
-        color: '#ebedee',
-        marginBottom: 8,
-        fontStyle: 'italic',
-        fontSize: 18
+    formView: {
+        justifyContent: 'center',
+        height: 55,
+        borderBottomWidth: 0.18,
+        borderBottomColor: '#727272'
     },
 
     input: {
-        borderWidth: 1,
-        borderColor: '#31303a',
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: '#444',
-        backgroundColor: '#ebedee',
-        height: 35,
-        marginBottom: 20,
-        borderRadius: 3,
-        fontStyle: 'italic'
+        marginVertical: 10,
+        marginHorizontal: 30,
+        color: '#000',
     },
 
-    submit: {
-        height: 40,
-        backgroundColor: '#31303a',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
+    buttonView: {
+        flex: 1,
+        backgroundColor: 'transparent',
     },
 
-    submitText: {
-        color: '#ebedee',
-        fontWeight: 'bold',
-        fontSize: 18,
-        fontStyle: 'italic'
+    submitButton: {
+        backgroundColor: '#4c4b4b',
+        height: 55,
+
     },
 
-    singUpButton: {
-        height: 40,
-        backgroundColor: '#777',
-        justifyContent: 'center',
-        alignItems: 'center'
+    submitButtonStyle: {
+        marginTop: 10,
+        elevation: 3,
+    },
+
+    iconForm: {
+        position: 'absolute',
+        right: 5,
+        color: '#727272'
     },
 
     singUpText: {
+        marginVertical: 40,
         color: '#ebedee',
+        alignSelf: 'center',
         fontWeight: 'bold',
-        fontSize: 18,
-        fontStyle: 'italic'
+        fontSize: 16,
     },
 });
