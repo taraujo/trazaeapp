@@ -1,36 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, 
-    View, Image, 
-    Text, TextInput, 
-    TouchableOpacity,
-    StyleSheet, AsyncStorage } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+    KeyboardAvoidingView, Platform,
+    View, Image,
+    Text, TextInput,
+    TouchableOpacity, Animated,
+    StyleSheet, AsyncStorage,
+    Alert
+} from 'react-native';
 
-import api from '../services/api';
+import {signIn} from '../services/auth.service';
 
-import { Button, TextInput } from 'react-native-paper'
+import {Button, Card} from 'react-native-paper'
 
-import logo from '../../assets/custom/header.png';
+import {FontAwesome} from '@expo/vector-icons';
+import logo from '../../assets/custom/white-logo.png';
 
-export default function Login({ navigation }) {
-    const [ email, setEmail] = useState('');
-    const [ password, setPassword] = useState('');
+export default function Login({navigation}) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     async function handleSubmit() {
-        const response = await api.post('/auth', {
-            email,
-            password
-        });
 
-        const { _id, name } = response.data;
+        const data = await signIn(email, password);
+        const {res} = data;
 
-        await AsyncStorage.setItem('user', {
-            _id,
-            name
-        });
 
-        navigation.navigate('Home', {
-            name
-        });
+        if (res) {
+            const {_id, name} = res;
+
+            // await AsyncStorage.setItem('user', {
+            //     _id,
+            //     name
+            // });
+
+            navigation.navigate('Home', {
+                name
+            });
+        } else {
+            Alert.alert("Erro", data['err']['data']['message'])
+        }
     }
 
 
@@ -38,38 +46,41 @@ export default function Login({ navigation }) {
         <KeyboardAvoidingView enabled={Platform.OS == 'ios'} behavior="padding" style={styles.container}>
             <Image style={styles.logo} source={logo}/>
 
-            <View style={styles.form}>
-                <TextInput
-                    label="Seu e-mail"
-                    keyboardType='email-address'
-                    autoCapitalize="none"
-                    mode="flat"
-                    autoCorrect={false}
-                    value={email}
-                    onChangeText={setEmail}
-                    style={styles.input}
-                    underlineColor="transparent"
-                />
+            <Card style={styles.cardView}>
+                <View style={styles.form}>
+                    <View style={styles.formView}>
+                        <FontAwesome style={styles.iconForm} name="user" size={24}/>
+                        <TextInput style={styles.input}
+                                   placeholder="Seu e-mail"
+                                   placeholderTextColor="#999"
+                                   keyboardType='email-address'
+                                   autoCapitalize="none"
+                                   autoCorrect={false}
+                                   value={email}
+                                   onChangeText={setEmail}
+                        />
+                    </View>
 
-                <TextInput
-                    label="Digite sua Senha"
-                    placeholderTextColor="#999"
-                    secureTextEntry={true}
-                    mode="flat"
-                    autoCorrect={false}
-                    value={password}
-                    onChangeText={setPassword}
-                    style={styles.input}
-                    underlineColor="transparent"
-                />
-
-                <Button contentStyle={styles.submitButton} style={styles.submitButtonStyle} color="#fff" onPress={handleSubmit}>
+                    <View style={styles.formView}>
+                        <FontAwesome style={styles.iconForm} name="lock" size={24}/>
+                        <TextInput style={styles.input}
+                                   placeholder="Digite sua Senha"
+                                   placeholderTextColor="#999"
+                                   secureTextEntry={true}
+                                   autoCorrect={false}
+                                   value={password}
+                                   onChangeText={setPassword}
+                        />
+                    </View>
+                </View>
+                <Button contentStyle={styles.submitButton} style={styles.submitButtonStyle} color="#fff"
+                        onPress={handleSubmit}>
                     Entrar
                 </Button>
-                <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
-                    <Text style={styles.singUpText}>Novo por aqui? Cadastre-se agora!</Text>
-                </TouchableOpacity>
-            </View>
+            </Card>
+            <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
+                <Text style={styles.singUpText}>Novo por aqui? Cadastre-se agora!</Text>
+            </TouchableOpacity>
         </KeyboardAvoidingView>
     );
 }
@@ -84,7 +95,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#754AA7'
+        backgroundColor: '#D25C5A'
+    },
+
+    cardView: {
+        marginVertical: 20,
+        marginHorizontal: 18
     },
 
     form: {
@@ -92,39 +108,42 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
 
-    label: {
-        fontWeight: 'bold',
-        color: '#ebedee',
-        marginBottom: 8,
-        fontStyle: 'italic',
-        fontSize: 18
+    formView: {
+        justifyContent: 'center',
+        height: 55,
+        borderBottomWidth: 0.18,
+        borderBottomColor: '#727272'
     },
 
     input: {
         marginVertical: 10,
-        height: 55
+        marginHorizontal: 30,
+        color: '#000',
     },
 
+    buttonView: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
     submitButton: {
-        backgroundColor: '#D952FF',
-        height: 77,
+        backgroundColor: '#4c4b4b',
+        height: 55,
+
     },
 
     submitButtonStyle: {
-        marginBottom: 10,
-        borderRadius: 35,
-        elevation: 3
+        marginTop: 10,
+        elevation: 3,
     },
 
-    singUpButton: {
-        height: 40,
-        backgroundColor: '#777',
-        justifyContent: 'center',
-        alignItems: 'center'
+    iconForm: {
+        position: 'absolute',
+        right: 5,
+        color: '#727272'
     },
 
     singUpText: {
-        paddingTop: 15,
+        marginVertical: 40,
         color: '#ebedee',
         alignSelf: 'center',
         fontWeight: 'bold',
