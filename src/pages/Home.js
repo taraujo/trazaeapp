@@ -32,10 +32,13 @@ export default function Home({ navigation }) {
 
 const styles = StyleSheet.create({
     logo: {
+        width: 250,
+        height: 60
     },
 
     container: {
         flex: 1,
+        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#D25C5A'
     },

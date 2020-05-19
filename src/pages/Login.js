@@ -84,12 +84,13 @@ export default function Login({navigation}) {
 
 const styles = StyleSheet.create({
     logo: {
-        alignSelf: 'center',
+        width: 250,
         height: 60
     },
 
     container: {
         flex: 1,
+        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#D25C5A'
     },
