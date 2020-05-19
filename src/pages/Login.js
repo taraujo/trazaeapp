@@ -7,11 +7,13 @@ import { KeyboardAvoidingView, Platform,
 
 import api from '../services/api';
 
-import logo from '../../assets/custom/login.png';
+import { Button, TextInput } from 'react-native-paper'
+
+import logo from '../../assets/custom/header.png';
 
 export default function Login({ navigation }) {
-    const [ email, setEmail ] = useState('');
-    const [ password, setPassword ] = useState('');
+    const [ email, setEmail] = useState('');
+    const [ password, setPassword] = useState('');
 
     async function handleSubmit() {
         const response = await api.post('/auth', {
@@ -31,39 +33,41 @@ export default function Login({ navigation }) {
         });
     }
 
+
     return (
-        <KeyboardAvoidingView  enabled={Platform.OS == 'ios'} behavior="padding" style={styles.container}>
+        <KeyboardAvoidingView enabled={Platform.OS == 'ios'} behavior="padding" style={styles.container}>
             <Image style={styles.logo} source={logo}/>
 
             <View style={styles.form}>
-                
-                <Text style={styles.label}>E-mail</Text>
-                <TextInput style={styles.input}
-                    placeholder="Seu e-mail"
-                    placeholderTextColor="#999"
+                <TextInput
+                    label="Seu e-mail"
                     keyboardType='email-address'
                     autoCapitalize="none"
+                    mode="flat"
                     autoCorrect={false}
                     value={email}
                     onChangeText={setEmail}
+                    style={styles.input}
+                    underlineColor="transparent"
                 />
 
-                <Text style={styles.label}>Senha</Text>
-                <TextInput style={styles.input}
-                    placeholder="Digite sua Senha"
+                <TextInput
+                    label="Digite sua Senha"
                     placeholderTextColor="#999"
                     secureTextEntry={true}
+                    mode="flat"
                     autoCorrect={false}
                     value={password}
                     onChangeText={setPassword}
+                    style={styles.input}
+                    underlineColor="transparent"
                 />
 
-                <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
-                    <Text style={styles.submitText}>Entrar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.singUpButton} onPress={() => navigation.navigate('Cadastro')}>
-                    <Text style={styles.singUpText}>Cadastrar-se</Text>
+                <Button contentStyle={styles.submitButton} style={styles.submitButtonStyle} color="#fff" onPress={handleSubmit}>
+                    Entrar
+                </Button>
+                <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
+                    <Text style={styles.singUpText}>Novo por aqui? Cadastre-se agora!</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -73,20 +77,19 @@ export default function Login({ navigation }) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 260,
-        height: 120
+        alignSelf: 'center',
+        height: 60
     },
 
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: "center",
-        backgroundColor: '#ff5353'
+        backgroundColor: '#754AA7'
     },
 
     form: {
-        alignSelf: 'stretch',
-        paddingHorizontal: 30
+        marginTop: 5,
+        paddingHorizontal: 20
     },
 
     label: {
@@ -98,31 +101,19 @@ const styles = StyleSheet.create({
     },
 
     input: {
-        borderWidth: 1,
-        borderColor: '#31303a',
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: '#444',
-        backgroundColor: '#ebedee',
-        height: 35,
-        marginBottom: 20,
-        borderRadius: 3,
-        fontStyle: 'italic'
+        marginVertical: 10,
+        height: 55
     },
 
-    submit: {
-        height: 40,
-        backgroundColor: '#31303a',
-        justifyContent: 'center',
-        alignItems: 'center',
+    submitButton: {
+        backgroundColor: '#D952FF',
+        height: 77,
+    },
+
+    submitButtonStyle: {
         marginBottom: 10,
-    },
-
-    submitText: {
-        color: '#ebedee',
-        fontWeight: 'bold',
-        fontSize: 18,
-        fontStyle: 'italic'
+        borderRadius: 35,
+        elevation: 3
     },
 
     singUpButton: {
@@ -133,9 +124,10 @@ const styles = StyleSheet.create({
     },
 
     singUpText: {
+        paddingTop: 15,
         color: '#ebedee',
+        alignSelf: 'center',
         fontWeight: 'bold',
-        fontSize: 18,
-        fontStyle: 'italic'
+        fontSize: 16,
     },
 });
