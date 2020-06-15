@@ -22,19 +22,23 @@ export default function Login({navigation}) {
 
     async function handleSubmit() {
 
-        const data = await signIn(email, password);
-        const {res} = data;
+        // const data = await signIn(email, password);
+        // const {res} = data;
 
 
-        if (res) {
-            const {_id, name} = res;
+        navigation.navigate('Home', {
+            'name': 'teste'
+        });
 
-            navigation.navigate('Home', {
-                name
-            });
-        } else {
-            Alert.alert("Erro", data['err']['data']['message'])
-        }
+        // if (res) {
+        //     const {_id, name} = res;
+        //
+        //     navigation.navigate('Home', {
+        //         name
+        //     });
+        // } else {
+        //     Alert.alert("Erro", data['err']['data']['message'])
+        // }
     }
 
 
@@ -84,13 +88,13 @@ export default function Login({navigation}) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 250,
-        height: 60
+        width: 280,
+        height: 60,
+        alignSelf: 'center'
     },
 
     container: {
         flex: 1,
-        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#D25C5A'
     },
