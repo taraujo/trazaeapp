@@ -1,36 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
-import { KeyboardAvoidingView, Platform,
+import {
+    KeyboardAvoidingView, Platform,
     View, Image, Text,
-    StyleSheet, Dimensions, SafeAreaView } from 'react-native';
+    StyleSheet, Dimensions, SafeAreaView
+} from 'react-native';
 
-import { Button, Card } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import * as Location from 'expo-location'
-import MapView, {Marker} from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import RBSheet from "react-native-raw-bottom-sheet";
 
 export default function Home({ navigation }) {
-    const { name } = navigation.state.params;
     const [loading, setLoading] = useState(true);
     const [userLocation, setUserLocation] = useState(null);
+    const [destination, setDestination] = useState(null);
+
     const LATITUDE_DELTA = 0.0922
     const LONGITUDE_DELTA = 0.0421
 
+    const refRBSheet = useRef();
+
     useEffect(() => {
-       (async () => {
-           let {status} = await Location.requestPermissionsAsync();
-           if (status !== 'granted') {
-               Alert.alert('Oops', 'Permission to access location was denied');
-               setLoading(false);
-           } else {
-               let location = await Location.getCurrentPositionAsync({});
-               setUserLocation(location);
-               setLoading(false);
-           }
-       })()
+        (async () => {
+            let { status } = await Location.requestPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Oops', 'Permission to access location was denied');
+                setLoading(false);
+            } else {
+                let location = await Location.getCurrentPositionAsync({});
+                setUserLocation(location);
+                setLoading(false);
+            }
+        })()
     });
 
     function getInitialRegion() {
@@ -47,6 +53,20 @@ export default function Home({ navigation }) {
             latitude: userLocation.coords.latitude,
             longitude: userLocation.coords.longitude,
         }
+    }
+
+    function handleSelectedLocation(data, { geometry }) {
+        const {
+            location: { lat: latitude, lng: longitude }
+        } = geometry;
+
+        setDestination({
+            latitude,
+            longitude,
+            title: data.structured_formatting.secondary_text
+        })
+
+        refRBSheet.current.open()
     }
 
 
@@ -72,17 +92,18 @@ export default function Home({ navigation }) {
                 </MapView>
             }
 
-            { userLocation   &&
+            {userLocation &&
                 <GooglePlacesAutocomplete
                     placeholder="Para onde?"
                     placeholderTextColor="#333"
+                    fetchDetails
+                    onPress={handleSelectedLocation}
                     query={{
-                        key: "AIzaSyBZefWupNjMj2l450xuOf7Wsa1PBkJbdFs",
+                        key: "AIzaSyBbPYad-_D5qniuqdbzwxfPvkSfHK0FBhU",
                         language: "pt-BR",
-                        location:`${userLocation.coords.latitude},${userLocation.coords.longitude}`,
+                        location: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
                         radius: 2000
                     }}
-                    fetchDetails
                     enablePoweredByContainer={false}
                     styles={{
                         container: {
@@ -109,6 +130,7 @@ export default function Home({ navigation }) {
                             marginTop: 0,
                             marginLeft: 0,
                             marginRight: 0,
+                            borderRadius: 30,
                             elevation: 5,
                             shadowColor: "#000",
                             shadowOpacity: 0.1,
@@ -139,6 +161,34 @@ export default function Home({ navigation }) {
                     }}
                 />
             }
+
+            {
+                destination &&
+                <RBSheet
+                    ref={refRBSheet}
+                    openDuration={500}
+                    closeOnDragDown
+                    customStyles={{
+                      container: {
+                        ...styles.bottomView
+                      }
+                    }}
+                >
+                    <View style={styles.imageBottomView}>
+                        <Image style={{ width: 80, height: 80 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/avatar-367-456319.png' }} />
+                    </View>
+                    <View style={styles.destinationBottomViewName}>
+                            <Text style={{ fontSize: 12, color: 'grey'}}>
+                                {destination.title}
+                            </Text>
+                    </View>
+                    
+                    <View style={styles.bottomViewSubmitButton}>
+                        <Button mode="contained" color="#303030">Confirmar</Button>
+                    </View>
+
+                </RBSheet>
+            }
         </SafeAreaView>
     );
 }
@@ -152,6 +202,26 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
+    },
+
+    bottomView: {
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        alignItems: 'center',
+    },
+
+    imageBottomView: {
+        alignSelf: 'center',
+        marginVertical: 5
+    },
+
+    destinationBottomViewName: {
+        alignItems: 'center',
+        marginHorizontal: 20
+    },
+
+    bottomViewSubmitButton:{
+        marginVertical: 50
     },
 
     cardView: {
