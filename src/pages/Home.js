@@ -1,8 +1,8 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, Fragment} from 'react';
 
 import {
     TouchableOpacity, Platform,
-    View, Image, Text,
+    View, Text,
     StyleSheet, Dimensions, SafeAreaView
 } from 'react-native';
 
@@ -12,6 +12,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import * as Location from 'expo-location'
 import MapView, {Marker} from "react-native-maps";
 
+import MapViewDirections from 'react-native-maps-directions';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import RBSheet from "react-native-raw-bottom-sheet";
 import {FontAwesome5} from '@expo/vector-icons';
@@ -88,6 +89,24 @@ export default function Home({navigation}) {
                         ref={refMarker}
                         coordinate={getInitialMarker()}
                     />
+
+                    {
+                        destination &&
+                            <Fragment>
+                        <MapViewDirections
+                            origin={userLocation.coords}
+                            strokeColor="#8099f2"
+                            strokeWidth={4}
+                            destination={destination}
+                            apikey="API_KEY"
+                        />
+                        <MapView.Marker
+                        ref={refMarker}
+                        pinColor="indigo"
+                        coordinate={destination}
+                        />
+                            </Fragment>
+                    }
 
                 </MapView>
             }
