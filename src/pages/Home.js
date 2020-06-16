@@ -122,7 +122,6 @@ export default function Home({ navigation }) {
                         textInput: {
                             height: 54,
                             margin: 0,
-                            borderRadius: 0,
                             paddingTop: 0,
                             paddingBottom: 0,
                             paddingLeft: 20,
