@@ -126,13 +126,13 @@ export default function Cadastro({ navigation }) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 250,
-        height: 60
+        width: 280,
+        height: 60,
+        alignSelf: 'center'
     },
 
     container: {
         flex: 1,
-        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#D25C5A'
     },
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
 
     iconForm: {
         position: 'absolute',
-        right: 5,
+        left: 0,
         color: '#727272'
     },
 

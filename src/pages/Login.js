@@ -6,7 +6,8 @@ import {
     Text, TextInput,
     TouchableOpacity,
     StyleSheet,
-    Alert
+    Alert,
+    Keyboard
 } from 'react-native';
 
 import { signIn } from '../services/auth.service';
@@ -20,35 +21,36 @@ import logo from '../../assets/custom/white-logo.png';
 export default function Login({navigation}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     async function handleSubmit() {
 
-        navigation.navigate('Home', {
-            name
-        });
+        Keyboard.dismiss();
+        setLoading(true);
+        // navigation.navigate('Home');
+        const data = await signIn(email, password);
+        const {res} = data;
 
-        // const data = await signIn(email, password);
-        // const {res} = data;
+        if (res) {
+            const {
+                access_token,
+                token_type,
+                user
+            } = res;
 
-        // if (res) {
-        //     const {
-        //         access_token,
-        //         token_type,
-        //         user 
-        //     } = res;
+            const { name } = user;
 
-        //     const { name } = user;
+            AsyncStorage.setItem("access_token", access_token);
+            AsyncStorage.setItem("token_type", token_type);
+            AsyncStorage.setItem("user_name", name);
 
-        //     AsyncStorage.setItem("access_token", access_token);
-        //     AsyncStorage.setItem("token_type", token_type);
-        //     AsyncStorage.setItem("user_name", name);
-
-        //     navigation.navigate('Home', {
-        //         name
-        //     });
-        // } else {
-        //     Alert.alert("Erro", data['err']['data']['message'])
-        // }
+            navigation.navigate('Home', {
+                name
+            });
+        } else {
+            setLoading(false);
+            Alert.alert("Erro", data['err']['data']['error'])
+        }
     }
 
 
@@ -83,7 +85,7 @@ export default function Login({navigation}) {
                         />
                     </View>
                 </View>
-                <Button contentStyle={styles.submitButton} style={styles.submitButtonStyle} color="#fff"
+                <Button loading={loading} contentStyle={styles.submitButton} style={styles.submitButtonStyle} color="#fff"
                         onPress={handleSubmit}>
                     Entrar
                 </Button>
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
 
     iconForm: {
         position: 'absolute',
-        right: 5,
+        left: 0,
         color: '#727272'
     },
 
