@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+    AsyncStorage,
     KeyboardAvoidingView, Platform,
     View, Image,
     Text, TextInput,
@@ -22,17 +23,26 @@ export default function Login({navigation}) {
 
     async function handleSubmit() {
 
+        navigation.navigate('Home', {
+            name
+        });
+
         // const data = await signIn(email, password);
         // const {res} = data;
 
-
-        navigation.navigate('Home', {
-            'name': 'teste'
-        });
-
         // if (res) {
-        //     const {_id, name} = res;
-        //
+        //     const {
+        //         access_token,
+        //         token_type,
+        //         user 
+        //     } = res;
+
+        //     const { name } = user;
+
+        //     AsyncStorage.setItem("access_token", access_token);
+        //     AsyncStorage.setItem("token_type", token_type);
+        //     AsyncStorage.setItem("user_name", name);
+
         //     navigation.navigate('Home', {
         //         name
         //     });
