@@ -18,8 +18,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import logo from '../../assets/custom/white-logo.png';
 
 export default function Login({navigation}) {
-    const [email, setEmail] = useState('thasso@mail.com');
-    const [password, setPassword] = useState('teste@123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     async function handleSubmit() {
 
