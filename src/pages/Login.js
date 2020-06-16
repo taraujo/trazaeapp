@@ -23,28 +23,32 @@ export default function Login({navigation}) {
 
     async function handleSubmit() {
 
-        const data = await signIn(email, password);
-        const {res} = data;
+        navigation.navigate('Home', {
+            name
+        });
 
-        if (res) {
-            const {
-                access_token,
-                token_type,
-                user 
-            } = res;
+        // const data = await signIn(email, password);
+        // const {res} = data;
 
-            const { name } = user;
+        // if (res) {
+        //     const {
+        //         access_token,
+        //         token_type,
+        //         user 
+        //     } = res;
 
-            AsyncStorage.setItem("access_token", access_token);
-            AsyncStorage.setItem("token_type", token_type);
-            AsyncStorage.setItem("user_name", name);
+        //     const { name } = user;
 
-            navigation.navigate('Home', {
-                name
-            });
-        } else {
-            Alert.alert("Erro", data['err']['data']['message'])
-        }
+        //     AsyncStorage.setItem("access_token", access_token);
+        //     AsyncStorage.setItem("token_type", token_type);
+        //     AsyncStorage.setItem("user_name", name);
+
+        //     navigation.navigate('Home', {
+        //         name
+        //     });
+        // } else {
+        //     Alert.alert("Erro", data['err']['data']['message'])
+        // }
     }
 
 
@@ -94,13 +98,13 @@ export default function Login({navigation}) {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 250,
-        height: 60
+        width: 280,
+        height: 60,
+        alignSelf: 'center'
     },
 
     container: {
         flex: 1,
-        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#D25C5A'
     },
