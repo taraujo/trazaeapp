@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+    AsyncStorage,
     KeyboardAvoidingView, Platform,
     View, Image,
     Text, TextInput,
@@ -17,17 +18,26 @@ import { FontAwesome } from '@expo/vector-icons';
 import logo from '../../assets/custom/white-logo.png';
 
 export default function Login({navigation}) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('thasso@mail.com');
+    const [password, setPassword] = useState('teste@123');
 
     async function handleSubmit() {
 
         const data = await signIn(email, password);
         const {res} = data;
 
-
         if (res) {
-            const {_id, name} = res;
+            const {
+                access_token,
+                token_type,
+                user 
+            } = res;
+
+            const { name } = user;
+
+            AsyncStorage.setItem("access_token", access_token);
+            AsyncStorage.setItem("token_type", token_type);
+            AsyncStorage.setItem("user_name", name);
 
             navigation.navigate('Home', {
                 name
