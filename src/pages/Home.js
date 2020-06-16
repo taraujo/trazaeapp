@@ -1,21 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 
 import {
-    KeyboardAvoidingView, Platform,
+    TouchableOpacity, Platform,
     View, Image, Text,
     StyleSheet, Dimensions, SafeAreaView
 } from 'react-native';
 
-import { Button } from 'react-native-paper';
+import {Button} from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import * as Location from 'expo-location'
-import MapView, { Marker } from "react-native-maps";
+import MapView, {Marker} from "react-native-maps";
 
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import RBSheet from "react-native-raw-bottom-sheet";
+import {FontAwesome5} from '@expo/vector-icons';
 
-export default function Home({ navigation }) {
+export default function Home({navigation}) {
     const [loading, setLoading] = useState(true);
     const [userLocation, setUserLocation] = useState(null);
     const [destination, setDestination] = useState(null);
@@ -24,10 +25,11 @@ export default function Home({ navigation }) {
     const LONGITUDE_DELTA = 0.0421
 
     const refRBSheet = useRef();
+    const refMarker = useRef();
 
     useEffect(() => {
         (async () => {
-            let { status } = await Location.requestPermissionsAsync();
+            let {status} = await Location.requestPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Oops', 'Permission to access location was denied');
                 setLoading(false);
@@ -55,9 +57,9 @@ export default function Home({ navigation }) {
         }
     }
 
-    function handleSelectedLocation(data, { geometry }) {
+    function handleSelectedLocation(data, {geometry}) {
         const {
-            location: { lat: latitude, lng: longitude }
+            location: {lat: latitude, lng: longitude}
         } = geometry;
 
         setDestination({
@@ -83,9 +85,7 @@ export default function Home({ navigation }) {
                     initialRegion={getInitialRegion()}
                 >
                     <MapView.Marker.Animated
-                        ref={marker => {
-                            marker = marker
-                        }}
+                        ref={refMarker}
                         coordinate={getInitialMarker()}
                     />
 
@@ -93,72 +93,74 @@ export default function Home({ navigation }) {
             }
 
             {userLocation &&
-                <GooglePlacesAutocomplete
-                    placeholder="Para onde?"
-                    placeholderTextColor="#333"
-                    fetchDetails
-                    onPress={handleSelectedLocation}
-                    query={{
-                        key: "AIzaSyBbPYad-_D5qniuqdbzwxfPvkSfHK0FBhU",
-                        language: "pt-BR",
-                        location: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
-                        radius: 2000
-                    }}
-                    enablePoweredByContainer={false}
-                    styles={{
-                        container: {
-                            position: "absolute",
-                            top: Platform.select({ ios: 60, android: 40 }),
-                            width: "100%"
-                        },
-                        textInputContainer: {
-                            flex: 1,
-                            backgroundColor: "transparent",
-                            height: 54,
-                            marginHorizontal: 20,
-                            borderTopWidth: 0,
-                            borderBottomWidth: 0
-                        },
-                        textInput: {
-                            height: 54,
-                            margin: 0,
-                            paddingTop: 0,
-                            paddingBottom: 0,
-                            paddingLeft: 20,
-                            paddingRight: 20,
-                            marginTop: 0,
-                            marginLeft: 0,
-                            marginRight: 0,
-                            borderRadius: 30,
-                            elevation: 5,
-                            shadowColor: "#000",
-                            shadowOpacity: 0.1,
-                            shadowOffset: { x: 0, y: 0 },
-                            shadowRadius: 15,
-                            borderWidth: 1,
-                            borderColor: "#DDD",
-                            fontSize: 18
-                        },
-                        listView: {
-                            borderWidth: 1,
-                            borderColor: "#DDD",
-                            backgroundColor: "#FFF",
-                            elevation: 5,
-                            shadowColor: "#000",
-                            shadowOpacity: 0.1,
-                            shadowOffset: { x: 0, y: 0 },
-                            shadowRadius: 15,
-                            marginTop: 10
-                        },
-                        description: {
-                            fontSize: 16
-                        },
-                        row: {
-                            padding: 20,
-                            height: 58
-                        }
-                    }}
-                />
+            <GooglePlacesAutocomplete
+                placeholder="Para onde?"
+                placeholderTextColor="#333"
+                fetchDetails
+                onPress={handleSelectedLocation}
+                keyboardShouldPersistTaps="handled"
+                onFail={error => console.log(error)}
+                query={{
+                    key: "API_KEY",
+                    language: "pt-BR",
+                    location: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
+                    radius: 2000
+                }}
+                enablePoweredByContainer={false}
+                styles={{
+                    container: {
+                        position: "absolute",
+                        top: Platform.select({ios: 60, android: 40}),
+                        width: "100%"
+                    },
+                    textInputContainer: {
+                        flex: 1,
+                        backgroundColor: "transparent",
+                        height: 54,
+                        marginHorizontal: 20,
+                        borderTopWidth: 0,
+                        borderBottomWidth: 0
+                    },
+                    textInput: {
+                        height: 54,
+                        margin: 0,
+                        paddingTop: 0,
+                        paddingBottom: 0,
+                        paddingLeft: 20,
+                        paddingRight: 20,
+                        marginTop: 0,
+                        marginLeft: 0,
+                        marginRight: 0,
+                        borderRadius: 30,
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.1,
+                        shadowOffset: {x: 0, y: 0},
+                        shadowRadius: 15,
+                        borderWidth: 1,
+                        borderColor: "#DDD",
+                        fontSize: 18
+                    },
+                    listView: {
+                        borderWidth: 1,
+                        borderColor: "#DDD",
+                        backgroundColor: "#FFF",
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.1,
+                        shadowOffset: {x: 0, y: 0},
+                        shadowRadius: 15,
+                        marginTop: 10
+                    },
+                    description: {
+                        fontSize: 16
+                    },
+                    row: {
+                        padding: 20,
+                        height: 58
+                    }
+                }}
+            />
             }
 
             {
@@ -168,24 +170,34 @@ export default function Home({ navigation }) {
                     openDuration={500}
                     closeOnDragDown
                     customStyles={{
-                      container: {
-                        ...styles.bottomView
-                      }
+                        container: {
+                            ...styles.bottomView
+                        }
                     }}
                 >
+                    <Text style={styles.textVehicle}>Qual veiculo melhor lhe atende?</Text>
+
                     <View style={styles.imageBottomView}>
-                        <Image style={{ width: 80, height: 80 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/avatar-367-456319.png' }} />
-                    </View>
-                    <View style={styles.destinationBottomViewName}>
-                            <Text style={{ fontSize: 12, color: 'grey'}}>
-                                {destination.title}
-                            </Text>
-                    </View>
-                    
-                    <View style={styles.bottomViewSubmitButton}>
-                        <Button mode="contained" color="#303030">Confirmar</Button>
+                        <TouchableOpacity style={styles.roundedVehicle}>
+                            <FontAwesome5 name="truck-moving" size={30} color="black"/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.roundedVehicle}>
+                            <FontAwesome5 name="truck-pickup" size={33} color="black"/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.roundedVehicle}>
+                            <FontAwesome5 name="motorcycle" size={33} color="black"/>
+                        </TouchableOpacity>
                     </View>
 
+                    <View style={styles.destinationBottomViewName}>
+                        <Text style={{fontSize: 12, color: 'grey'}}>
+                            {destination.title}
+                        </Text>
+                    </View>
+                    <View style={styles.borderButtons}>
+                        <Button mode="contained" style={{marginHorizontal: 5}} onPress={()=> console.log('submit')} color="#303030">Confirmar</Button>
+                        <Button mode="contained" style={{marginHorizontal: 5}} onPress={()=> console.log('schedule')} color="#bf6262">Agendar</Button>
+                    </View>
                 </RBSheet>
             }
         </SafeAreaView>
@@ -193,12 +205,6 @@ export default function Home({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    logo: {
-        width: 250,
-        height: 60,
-        alignSelf: 'center'
-    },
-
     container: {
         flex: 1,
     },
@@ -210,17 +216,20 @@ const styles = StyleSheet.create({
     },
 
     imageBottomView: {
-        alignSelf: 'center',
-        marginVertical: 5
+        flexDirection: "row",
+        marginVertical: 10,
     },
 
     destinationBottomViewName: {
         alignItems: 'center',
-        marginHorizontal: 20
+        marginHorizontal: 20,
     },
 
-    bottomViewSubmitButton:{
-        marginVertical: 50
+    borderButtons: {
+        flexDirection: 'row',
+        marginVertical: 35,
+        marginHorizontal: 35,
+        justifyContent: 'space-between'
     },
 
     cardView: {
@@ -256,6 +265,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
 
+    textVehicle: {
+        fontSize: 17,
+        marginBottom: 5
+    },
+
+    roundedVehicle: {
+        alignItems: 'center',
+        backgroundColor: '#d7d4d4',
+        borderRadius: 50,
+        width: 55,
+        height: 55,
+        marginHorizontal: 6,
+        justifyContent: 'center',
+    },
+
     submitButton: {
         backgroundColor: '#4c4b4b',
         height: 55,
@@ -265,23 +289,5 @@ const styles = StyleSheet.create({
     submitButtonStyle: {
         marginTop: 10,
         elevation: 3,
-    },
-
-    iconForm: {
-        position: 'absolute',
-        right: 5,
-        color: '#727272'
-    },
-
-    singUpText: {
-        marginVertical: 40,
-        color: '#ebedee',
-        alignSelf: 'center',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-
-    username: {
-        fontSize: 20,
     },
 });
