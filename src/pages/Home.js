@@ -1,38 +1,40 @@
-import React, { useEffect, useState, useRef, Fragment } from 'react';
+import React, {useEffect, useState, useRef, Fragment} from 'react';
 
 import {
     TouchableOpacity, Platform,
     View, Text,
-    StyleSheet, Dimensions, SafeAreaView, Alert
+    StyleSheet, ActivityIndicator, SafeAreaView, Alert
 } from 'react-native';
 
-import { Button } from 'react-native-paper';
+import {Button} from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import * as Location from 'expo-location'
-import MapView, { Marker } from "react-native-maps";
+import MapView, {Marker} from "react-native-maps";
 
 import MapViewDirections from 'react-native-maps-directions';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import RBSheet from "react-native-raw-bottom-sheet";
-import { FontAwesome5 } from '@expo/vector-icons';
-import { confirm } from '../services/freight.service';
+import {FontAwesome5} from '@expo/vector-icons';
+import {calculateFreight, confirm} from '../services/freight.service';
 
-export default function Home({ navigation }) {
-    const [loading, setLoading] = useState(true);
-    const [userLocation, setUserLocation] = useState(null);
-    const [destination, setDestination] = useState(null);
-    const [freightValue, setFreightValue] = useState(null)
-    const [tipoveiculo, setTipoVeiculo] = useState(null)
-    const [formData, setFormData] = useState({
+export default function Home({navigation}) {
+    const formDataInitialState = {
         origem_latitude: null,
         origem_longitude: null,
         destino_latitude: null,
         destino_longitude: null,
         tipo_veiculo: null,
-        data_frete: '16/06/2020',
         distancia: null
-    }
+    };
+    const [loading, setLoading] = useState(true);
+    const [userLocation, setUserLocation] = useState(null);
+    const [destination, setDestination] = useState(null);
+    const [freightValue, setFreightValue] = useState(null)
+    const [vehicleSubmit, setVehicleSubmit] = useState(false);
+    const [confirmSubmit, setConfirmSubmit] = useState(false);
+    const [formData, setFormData] = useState(
+        formDataInitialState
     );
 
     const LATITUDE_DELTA = 0.0922
@@ -43,38 +45,77 @@ export default function Home({ navigation }) {
 
     useEffect(() => {
         (async () => {
-            console.log('async effect')
-            let { status } = await Location.requestPermissionsAsync();
+            let {status} = await Location.requestPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Oops', 'Permission to access location was denied');
                 setLoading(false);
             } else {
-                console.log('async effect')
-                let location = await Location.getCurrentPositionAsync({});
-                handleFormDataState('origem_latitude', location.coords.latitude)
-                handleFormDataState('origem_longitude', location.coords.longitude)
+                await getUserActualLocation();
 
-                setUserLocation(location)
                 setLoading(false);
             }
         })()
     }, []);
 
-    async function submitButton() {
-        // const data = await confirm(formData);
+    useEffect(() => {
+        (async () => {
+            if (vehicleSubmit) {
+                await handleSubmitVehicleButton();
+            }
 
-        // const { res } = data;
+        })()
+    }, [vehicleSubmit]);
 
-        // console.log(formData)
 
-        setFreightValue(200.25)
+    useEffect(() => {
+        (async () => {
+            if (confirmSubmit) {
+                await handleConfirmSubmitButton();
+            }
+        })()
+    }, [confirmSubmit])
 
-        // if (res) {
-        //     console.log(res)
-        //     setFreightValue(res.valor)
-        // } else {
-        //     Alert.alert("Erro", data['err']['data']['error'])
-        // }
+    async function getUserActualLocation() {
+        let location = await Location.getCurrentPositionAsync({});
+        handleFormDataState('origem_latitude', location.coords.latitude)
+        handleFormDataState('origem_longitude', location.coords.longitude)
+
+        setUserLocation(location)
+    }
+
+    async function handleConfirmSubmitButton() {
+        const data = await confirm(formData);
+
+        const {res} = data;
+
+        if (res) {
+            setConfirmSubmit(false);
+            refRBSheet.current.close();
+            Alert.alert("Sucesso", "O seu frete foi confirmado, um motorista irá analisa-lo e em breve enrtará em contato!")
+            clearFormData();
+        } else {
+            setConfirmSubmit(false);
+            Alert.alert("Erro", data['err']['data']['error'])
+        }
+    }
+
+    async function handleSubmitVehicleButton() {
+        const data = await calculateFreight(formData);
+
+        const {res} = data;
+
+        if (res) {
+            setFreightValue(res.valor)
+            setVehicleSubmit(false);
+        } else {
+            setVehicleSubmit(false);
+            Alert.alert("Erro", data['err']['data']['error'])
+        }
+    }
+
+    function clearFormData() {
+        setFormData({...formDataInitialState});
+        setFreightValue(null);
     }
 
     function getInitialRegion() {
@@ -93,12 +134,16 @@ export default function Home({ navigation }) {
         }
     }
 
-    function handleSelectedLocation(data, { geometry }) {
+    function handleSelectedLocation(data, {geometry}) {
         const {
-            location: { lat: latitude, lng: longitude }
+            location: {lat: latitude, lng: longitude}
         } = geometry;
 
-        setFormData({ ...formData, destino_latitude: latitude, destino_longitude: longitude });
+        handleFormDataState('origem_latitude', userLocation.coords.latitude);
+        handleFormDataState('origem_longitude', userLocation.coords.longitude);
+
+        handleFormDataState('destino_latitude', latitude);
+        handleFormDataState('destino_longitude', longitude);
 
         setDestination({
             latitude,
@@ -106,11 +151,11 @@ export default function Home({ navigation }) {
             title: data.structured_formatting.secondary_text
         })
 
-        refRBSheet.current.open()
+        refRBSheet.current.open();
     }
 
     function handleFormDataState(key, value) {
-        return setFormData(previusValue => ({ ...previusValue, [key]: value }))
+        return setFormData(previusValue => ({...previusValue, [key]: value}))
     }
 
     return (
@@ -139,7 +184,7 @@ export default function Home({ navigation }) {
                                 strokeWidth={4}
                                 destination={destination}
                                 onReady={result => {
-                                    setFormData({ ...formData, distancia: result.distance })
+                                    setFormData({...formData, distancia: result.distance})
                                 }}
                                 apikey="API_KEY"
                             />
@@ -155,74 +200,73 @@ export default function Home({ navigation }) {
             }
 
             {userLocation &&
-                <GooglePlacesAutocomplete
-                    placeholder="Para onde?"
-                    placeholderTextColor="#333"
-                    fetchDetails
-                    onPress={handleSelectedLocation}
-                    keyboardShouldPersistTaps="handled"
-                    onFail={error => console.log(error)}
-                    query={{
-                        key: "API_KEY",
-                        language: "pt-BR",
-                        location: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
-                        radius: 2000
-                    }}
-                    enablePoweredByContainer={false}
-                    styles={{
-                        container: {
-                            position: "absolute",
-                            top: Platform.select({ ios: 60, android: 40 }),
-                            width: "100%"
-                        },
-                        textInputContainer: {
-                            flex: 1,
-                            backgroundColor: "transparent",
-                            height: 54,
-                            marginHorizontal: 20,
-                            borderTopWidth: 0,
-                            borderBottomWidth: 0
-                        },
-                        textInput: {
-                            height: 54,
-                            margin: 0,
-                            paddingTop: 0,
-                            paddingBottom: 0,
-                            paddingLeft: 20,
-                            paddingRight: 20,
-                            marginTop: 0,
-                            marginLeft: 0,
-                            marginRight: 0,
-                            borderRadius: 30,
-                            elevation: 5,
-                            shadowColor: "#000",
-                            shadowOpacity: 0.1,
-                            shadowOffset: { x: 0, y: 0 },
-                            shadowRadius: 15,
-                            borderWidth: 1,
-                            borderColor: "#DDD",
-                            fontSize: 18
-                        },
-                        listView: {
-                            borderWidth: 1,
-                            borderColor: "#DDD",
-                            backgroundColor: "#FFF",
-                            elevation: 5,
-                            shadowColor: "#000",
-                            shadowOpacity: 0.1,
-                            shadowOffset: { x: 0, y: 0 },
-                            shadowRadius: 15,
-                            marginTop: 10
-                        },
-                        description: {
-                            fontSize: 16
-                        },
-                        row: {
-                            padding: 20,
-                            height: 58
-                        }
-                    }}
-                />
+            <GooglePlacesAutocomplete
+                placeholder="Para onde?"
+                placeholderTextColor="#333"
+                fetchDetails
+                onPress={handleSelectedLocation}
+                keyboardShouldPersistTaps="handled"
+                query={{
+                    key: "API_KEY",
+                    language: "pt-BR",
+                    location: `${userLocation.coords.latitude},${userLocation.coords.longitude}`,
+                    radius: 2000
+                }}
+                enablePoweredByContainer={false}
+                styles={{
+                    container: {
+                        position: "absolute",
+                        top: Platform.select({ios: 60, android: 40}),
+                        width: "100%"
+                    },
+                    textInputContainer: {
+                        flex: 1,
+                        backgroundColor: "transparent",
+                        height: 54,
+                        marginHorizontal: 20,
+                        borderTopWidth: 0,
+                        borderBottomWidth: 0
+                    },
+                    textInput: {
+                        height: 54,
+                        margin: 0,
+                        paddingTop: 0,
+                        paddingBottom: 0,
+                        paddingLeft: 20,
+                        paddingRight: 20,
+                        marginTop: 0,
+                        marginLeft: 0,
+                        marginRight: 0,
+                        borderRadius: 30,
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.1,
+                        shadowOffset: {x: 0, y: 0},
+                        shadowRadius: 15,
+                        borderWidth: 1,
+                        borderColor: "#DDD",
+                        fontSize: 18
+                    },
+                    listView: {
+                        borderWidth: 1,
+                        borderColor: "#DDD",
+                        backgroundColor: "#FFF",
+                        elevation: 5,
+                        shadowColor: "#000",
+                        shadowOpacity: 0.1,
+                        shadowOffset: {x: 0, y: 0},
+                        shadowRadius: 15,
+                        marginTop: 10
+                    },
+                    description: {
+                        fontSize: 16
+                    },
+                    row: {
+                        padding: 20,
+                        height: 58
+                    }
+                }}
+            />
             }
 
             {
@@ -231,6 +275,7 @@ export default function Home({ navigation }) {
                     ref={refRBSheet}
                     openDuration={500}
                     closeOnDragDown
+                    onClose={()=> { clearFormData()}}
                     customStyles={{
                         container: {
                             ...styles.bottomView
@@ -242,58 +287,59 @@ export default function Home({ navigation }) {
                     <View style={styles.imageBottomView}>
                         <TouchableOpacity style={styles.roundedVehicle} onPress={() => {
                             handleFormDataState('tipo_veiculo', 3)
+                            setVehicleSubmit(true);
                         }
                         }>
-                            <FontAwesome5 name="truck-moving" size={30} color="black" />
+                            <FontAwesome5 name="truck-moving" size={30} color="black"/>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.roundedVehicle} onPress={() => {
                             handleFormDataState('tipo_veiculo', 2)
+                            setVehicleSubmit(true);
                         }
                         }>
-                            <FontAwesome5 name="truck-pickup" size={33} color="black" />
+                            <FontAwesome5 name="truck-pickup" size={33} color="black"/>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.roundedVehicle} onPress={() => {
-                            handleFormDataState('tipo_veiculo', 1)
+                            handleFormDataState('tipo_veiculo', 1);
+                            setVehicleSubmit(true);
                         }
                         }>
-                            <FontAwesome5 name="motorcycle" size={33} color="black" />
+                            <FontAwesome5 name="motorcycle" size={33} color="black"/>
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.destinationBottomViewName}>
-                        <Text style={{ fontSize: 12, color: 'grey' }}>
+                        <Text style={{fontSize: 12, color: 'grey'}}>
                             {destination.title}
                         </Text>
+                        {
+                            vehicleSubmit &&
+                            <ActivityIndicator size="small" color="#4287f5"/>
+                        }
 
                         {
-                            freightValue && 
-                            <Text style={{ fontSize: 25, color: 'grey' }}>
+                            freightValue &&
+                            <Text style={{fontSize: 25, color: 'grey'}}>
                                 R${freightValue}
                             </Text>
                         }
                     </View>
-
+                    {freightValue &&
                     <View style={styles.borderButtons}>
-                        {
-                            !freightValue &&
-                            <Button mode="contained" style={{ marginHorizontal: 5, width: 320 }} onPress={() => submitButton()} color="#303030">Buscar</Button>
-                        }
-
-                        {freightValue &&
-                            <Fragment>
-                                <Button mode="contained" style={{ marginHorizontal: 5 }} onPress={() => console.log('confimado')} color="#303030">Confirmar</Button>
-                                <Button mode="contained" style={{ marginHorizontal: 5 }} onPress={() => console.log('schedule')} color="#bf6262">Agendar</Button>
-                            </Fragment>
-                        }
+                        <Fragment>
+                            <Button mode="contained" style={{marginHorizontal: 5}} loading={confirmSubmit}
+                                    onPress={() => setConfirmSubmit(true)} color="#303030">Confirmar</Button>
+                            {/*<Button mode="contained" style={{ marginHorizontal: 5 }} onPress={() => console.log('schedule')} color="#bf6262">Agendar</Button>*/}
+                        </Fragment>
                     </View>
+                    }
                 </RBSheet>
             }
         </SafeAreaView>
     );
 }
-
 
 
 const styles = StyleSheet.create({
