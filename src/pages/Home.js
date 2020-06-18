@@ -91,7 +91,7 @@ export default function Home({navigation}) {
         if (res) {
             setConfirmSubmit(false);
             refRBSheet.current.close();
-            Alert.alert("Sucesso", "O seu frete foi confirmado, um motorista irá analisa-lo e em breve enrtará em contato!")
+            Alert.alert("Sucesso", "O seu frete foi confirmado, um motorista irá analisa-lo e em breve entrará em contato!")
             clearFormData();
         } else {
             setConfirmSubmit(false);
