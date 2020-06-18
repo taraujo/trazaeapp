@@ -1,11 +1,11 @@
 import axios from 'axios';
-import {AsyncStorage} from 'react-native'
+import { getData } from '../util/async-storage'
 const api = axios.create({
-    baseURL: 'https://af2aa2d75cd4.ngrok.io/api'
+    baseURL: 'https://4d746e82cddb.ngrok.io/api'
 });
 
 api.interceptors.request.use(async (config) => {
-    const userToken = AsyncStorage.getItem('access_token');
+    const userToken = await getData('access_token');
     config.headers.Authorization = `Bearer ${userToken}`;
     return config;
 });
